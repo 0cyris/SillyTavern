@@ -47,6 +47,7 @@ const CC_COMMANDS = [
     'start-reply-with',
     'reasoning-template',
     'prompt-post-processing',
+    'openrouter-cache-ttl',
     'secret-id',
     'regex-preset',
 ];
@@ -85,6 +86,7 @@ const FANCY_NAMES = {
     'start-reply-with': 'Start Reply With',
     'reasoning-template': 'Reasoning Template',
     'prompt-post-processing': 'Prompt Post-Processing',
+    'openrouter-cache-ttl': 'Prompt Cache Lifetime',
     'secret-id': 'Secret',
     'regex-preset': 'Regex Preset',
 };
@@ -173,6 +175,7 @@ const profilesProvider = () => [
  * @property {string} [start-reply-with] Start Reply With
  * @property {string} [reasoning-template] Reasoning Template
  * @property {string} [prompt-post-processing] Prompt Post-Processing
+ * @property {string} [openrouter-cache-ttl] Prompt Cache Lifetime
  * @property {string} [sysprompt] System Prompt Name
  * @property {string} [sysprompt-state] Use System Prompt
  * @property {string} [api-url] Server URL

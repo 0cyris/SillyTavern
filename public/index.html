@@ -673,19 +673,6 @@
                                         </select>
                                     </div>
                                 </div>
-                                <div data-source="openrouter" class="range-block">
-                                    <div class="range-block-title" data-i18n="[title]Cache the prompt prefix on Claude models to reduce the cost of repeated requests. Longer cache lifetimes cost more to write." title="Cache the prompt prefix on Claude models to reduce the cost of repeated requests. Longer cache lifetimes cost more to write.">
-                                        <span data-i18n="Prompt Cache Lifetime">Prompt Cache Lifetime</span>
-                                        <a href="https://openrouter.ai/docs/guides/best-practices/prompt-caching" target="_blank" rel="noreferrer noopener" class="note-link-span fa-solid fa-circle-question"></a>
-                                    </div>
-                                    <div class="wide100p">
-                                        <select id="openrouter_cache_ttl" class="text_pole">
-                                            <option value="" data-i18n="Off">Off</option>
-                                            <option value="5m" data-i18n="5 minutes">5 minutes</option>
-                                            <option value="1h" data-i18n="1 hour">1 hour</option>
-                                        </select>
-                                    </div>
-                                </div>
                                 <div data-source="openrouter">
                                     <span data-i18n="Max prompt cost:">Max prompt cost:</span> <span id="openrouter_max_prompt_cost" data-i18n="Unknown">Unknown</span>
                                 </div>
@@ -3278,6 +3265,19 @@
                                     <option data-i18n="Brain floating point (16 bit)" value="bf16">Brain floating point (16 bit)</option>
                                     <option data-i18n="Floating point (32 bit)" value="fp32">Floating point (32 bit)</option>
                                     <option data-i18n="Unknown" value="unknown">Unknown</option>
+                                </select>
+                            </div>
+                            <div>
+                                <h4>
+                                    <span data-i18n="Prompt Cache Lifetime">Prompt Cache Lifetime</span>
+                                    <a href="https://openrouter.ai/docs/guides/best-practices/prompt-caching" class="notes-link" target="_blank" rel="noreferrer noopener">
+                                        <span class="fa-solid fa-circle-question note-link-span"></span>
+                                    </a>
+                                </h4>
+                                <select id="openrouter_cache_ttl" class="text_pole" title="Cache the prompt prefix on Claude models to reduce the cost of repeated requests. Longer cache lifetimes cost more to write." data-i18n="[title]Cache the prompt prefix on Claude models to reduce the cost of repeated requests. Longer cache lifetimes cost more to write.">
+                                    <option value="" data-i18n="openrouter_cache_ttl_off">Off</option>
+                                    <option value="5m" data-i18n="openrouter_cache_ttl_5m">5 minutes</option>
+                                    <option value="1h" data-i18n="openrouter_cache_ttl_1h">1 hour</option>
                                 </select>
                             </div>
                         </form>

@@ -3592,6 +3592,54 @@ export function initDefaultSlashCommands() {
         },
     }));
 
+    const openRouterCacheTtlEnumProvider = () => Array
+        .from(document.getElementById('openrouter_cache_ttl').querySelectorAll('option'))
+        .map(option => new SlashCommandEnumValue(option.value || 'off', option.textContent, enumTypes.enum));
+    SlashCommandParser.addCommandObject(SlashCommand.fromProps({
+        name: 'openrouter-cache-ttl',
+        helpString: `
+            <div>
+                ${t`Sets the OpenRouter prompt cache lifetime. Gets the current selection if no value is provided.`}
+            </div>
+            <div>
+                <strong>${t`Examples:`}</strong>
+            </div>
+            <ul>
+                <li><pre><code class="language-stscript">/openrouter-cache-ttl | /echo</code></pre></li>
+                <li><pre><code class="language-stscript">/openrouter-cache-ttl 1h</code></pre></li>
+            </ul>
+        `,
+        namedArgumentList: [],
+        unnamedArgumentList: [
+            SlashCommandArgument.fromProps({
+                description: t`value`,
+                typeList: [ARGUMENT_TYPE.STRING],
+                acceptsMultiple: false,
+                isRequired: true,
+                forceEnum: true,
+                enumProvider: openRouterCacheTtlEnumProvider,
+            }),
+        ],
+        callback: (_args, value) => {
+            const stringValue = String(value ?? '').trim().toLowerCase();
+            if (!stringValue) {
+                return oai_settings.openrouter_cache_ttl || 'off';
+            }
+
+            const validValues = openRouterCacheTtlEnumProvider().map(option => option.value);
+            if (!validValues.includes(stringValue)) {
+                throw new Error(t`Invalid value "${stringValue}". Valid values are: ${validValues.join(', ')}`);
+            }
+
+            // 'off' value must be coerced to an empty string
+            oai_settings.openrouter_cache_ttl = stringValue === 'off' ? '' : stringValue;
+            $('#openrouter_cache_ttl').val(oai_settings.openrouter_cache_ttl);
+            saveSettingsDebounced();
+
+            return oai_settings.openrouter_cache_ttl || 'off';
+        },
+    }));
+
     SlashCommandParser.addCommandObject(SlashCommand.fromProps({
         name: 'reroll-pick',
         callback: (_, value) => {
