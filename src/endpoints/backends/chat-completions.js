@@ -54,6 +54,7 @@ import {
     addReasoningContentToToolCalls,
     cachingSystemPromptForOpenRouter,
     addOpenRouterSignatures,
+    resolveOpenRouterCacheSettings,
 } from '../../prompt-converters.js';
 
 import { readSecret, SECRET_KEYS } from '../secrets.js';
@@ -2374,12 +2375,14 @@ router.post('/generate', async function (request, response) {
                 addOpenRouterSignatures(request.body.messages, request.body.model);
 
                 if (isClaude) {
-                    if (enableSystemPromptCache) {
-                        cachingSystemPromptForOpenRouter(request.body.messages, cacheTTL);
+                    const cacheSettings = resolveOpenRouterCacheSettings(request.body.cache_ttl, cacheTTL, enableSystemPromptCache);
+
+                    if (cacheSettings.enableSystemPrompt) {
+                        cachingSystemPromptForOpenRouter(request.body.messages, cacheSettings.ttl);
                     }
 
                     if (cachingAtDepth !== -1) {
-                        cachingAtDepthForOpenRouterClaude(request.body.messages, cachingAtDepth, cacheTTL);
+                        cachingAtDepthForOpenRouterClaude(request.body.messages, cachingAtDepth, cacheSettings.ttl);
                     }
                 }
 

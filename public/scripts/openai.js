@@ -236,6 +236,12 @@ const openrouter_middleout_types = {
     OFF: 'off',
 };
 
+const openrouter_cache_ttl_types = {
+    OFF: '',
+    SHORT: '5m',
+    LONG: '1h',
+};
+
 export const reasoning_effort_types = {
     auto: 'auto',
     low: 'low',
@@ -323,6 +329,7 @@ export const settingsToUpdate = {
     openrouter_quantizations: ['#openrouter_quantizations_chat', 'openrouter_quantizations', false, true],
     openrouter_allow_fallbacks: ['#openrouter_allow_fallbacks', 'openrouter_allow_fallbacks', true, true],
     openrouter_middleout: ['#openrouter_middleout', 'openrouter_middleout', false, true],
+    openrouter_cache_ttl: ['#openrouter_cache_ttl', 'openrouter_cache_ttl', false, true],
     tool_reasoning_mode: ['#tool_reasoning_mode', 'tool_reasoning_mode', false, false],
     ai21_model: ['#model_ai21_select', 'ai21_model', false, true],
     mistralai_model: ['#model_mistralai_select', 'mistralai_model', false, true],
@@ -482,6 +489,7 @@ const default_settings = {
     openrouter_quantizations: [],
     openrouter_allow_fallbacks: true,
     openrouter_middleout: openrouter_middleout_types.ON,
+    openrouter_cache_ttl: openrouter_cache_ttl_types.OFF,
     tool_reasoning_mode: tool_reasoning_modes.DISABLED,
     reverse_proxy: '',
     chat_completion_source: chat_completion_sources.OPENAI,
@@ -2891,6 +2899,7 @@ export async function createGenerationParameters(settings, model, type, messages
         generate_data.quantizations = settings.openrouter_quantizations;
         generate_data.allow_fallbacks = settings.openrouter_allow_fallbacks;
         generate_data.middleout = settings.openrouter_middleout;
+        generate_data.cache_ttl = settings.openrouter_cache_ttl;
     }
 
     if (settings.chat_completion_source === chat_completion_sources.NANOGPT) {
@@ -7028,6 +7037,11 @@ export function initOpenAI() {
 
     $('#openrouter_middleout').on('input', function () {
         oai_settings.openrouter_middleout = String($(this).val());
+        saveSettingsDebounced();
+    });
+
+    $('#openrouter_cache_ttl').on('input', function () {
+        oai_settings.openrouter_cache_ttl = String($(this).val());
         saveSettingsDebounced();
     });
 

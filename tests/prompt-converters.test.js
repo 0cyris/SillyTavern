@@ -397,6 +397,22 @@ describe('embedOpenRouterMedia', () => {
 });
 
 
+describe('resolveOpenRouterCacheSettings', () => {
+    test('prefers a requested TTL over the server config', () => {
+        expect(mod.resolveOpenRouterCacheSettings('1h', '5m', false)).toEqual({ ttl: '1h', enableSystemPrompt: true });
+        expect(mod.resolveOpenRouterCacheSettings('5m', '1h', false)).toEqual({ ttl: '5m', enableSystemPrompt: true });
+    });
+
+    test('falls back to the server config when no TTL is requested', () => {
+        expect(mod.resolveOpenRouterCacheSettings('', '1h', true)).toEqual({ ttl: '1h', enableSystemPrompt: true });
+        expect(mod.resolveOpenRouterCacheSettings(undefined, '5m', false)).toEqual({ ttl: '5m', enableSystemPrompt: false });
+    });
+
+    test('ignores an unsupported TTL value', () => {
+        expect(mod.resolveOpenRouterCacheSettings('90m', '5m', false)).toEqual({ ttl: '5m', enableSystemPrompt: false });
+    });
+});
+
 describe('cachingSystemPromptForOpenRouter', () => {
     test('adds cache_control to string system message', () => {
         const messages = [{ role: 'system', content: 'You are helpful.' }];

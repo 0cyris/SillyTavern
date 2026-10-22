@@ -1063,6 +1063,24 @@ export function cachingAtDepthForOpenRouterClaude(messages, cachingAtDepth, ttl)
     }
 }
 
+export const OPENROUTER_CACHE_TTL_VALUES = Object.freeze(['5m', '1h']);
+
+/**
+ * Resolves OpenRouter prompt caching settings, preferring a client-requested TTL over the server config.
+ * @param {string} requestedTtl TTL requested by the client; anything outside OPENROUTER_CACHE_TTL_VALUES is ignored
+ * @param {string} configTtl TTL from the server config
+ * @param {boolean} configEnableSystemPrompt Whether system prompt caching is enabled in the server config
+ * @returns {{ttl: string, enableSystemPrompt: boolean}} Resolved caching settings
+ */
+export function resolveOpenRouterCacheSettings(requestedTtl, configTtl, configEnableSystemPrompt) {
+    const isRequested = OPENROUTER_CACHE_TTL_VALUES.includes(requestedTtl);
+
+    return {
+        ttl: isRequested ? requestedTtl : configTtl,
+        enableSystemPrompt: isRequested || configEnableSystemPrompt,
+    };
+}
+
 /**
  * Adds cache_control to the system prompt for OpenRouter requests.
  *
