@@ -125,10 +125,10 @@ function getAffinityKey() {
 }
 
 /**
- * Cache for cacheable (writing) OpenRouter model IDs.
- * @type {string[]}
+ * Cache for OpenRouter prompt cache write support, keyed by model ID.
+ * @type {Map<string, boolean>}
  */
-const openRouterCacheableModels = [];
+const openRouterCacheableModels = new Map();
 
 /**
  * Checks if an OpenRouter model supports prompt cache writing.
@@ -137,8 +137,8 @@ const openRouterCacheableModels = [];
  * @returns {Promise<boolean>} `true` if the model supports writing cache
  */
 async function isOpenRouterModelCacheable(modelId) {
-    if (openRouterCacheableModels.includes(modelId)) {
-        return true;
+    if (openRouterCacheableModels.has(modelId)) {
+        return openRouterCacheableModels.get(modelId);
     }
 
     try {
@@ -164,9 +164,8 @@ async function isOpenRouterModelCacheable(modelId) {
         const model = data.data.find(m => m.id === modelId);
         const supportsCache = model?.pricing?.input_cache_write != null;
 
-        if (supportsCache) {
-            openRouterCacheableModels.push(modelId);
-        }
+        // Only memoize a definitive answer, so a transient failure isn't cached.
+        openRouterCacheableModels.set(modelId, supportsCache);
 
         return supportsCache;
     } catch (error) {
@@ -2365,29 +2364,26 @@ router.post('/generate', async function (request, response) {
                 };
             }
 
-            const isClaude = /^anthropic\/claude/.test(request.body.model);
+            // Gemini accepts cache_control but ignores the TTL and honors only the last breakpoint.
             const isGemini = /google\/gemini/.test(request.body.model);
-            const isCacheableGemini = isGemini && await isOpenRouterModelCacheable(request.body.model);
+            const isCacheableModel = await isOpenRouterModelCacheable(request.body.model);
             const enableGeminiSystemPromptCache = getConfigValue('gemini.enableSystemPromptCache', false, 'boolean');
 
             if (Array.isArray(request.body.messages)) {
                 embedOpenRouterMedia(request.body.messages, { audio: true, video: true });
                 addOpenRouterSignatures(request.body.messages, request.body.model);
 
-                if (isClaude) {
+                if (isCacheableModel) {
                     const cacheSettings = resolveOpenRouterCacheSettings(request.body.cache_ttl, cacheTTL, enableSystemPromptCache);
+                    const ttl = isGemini ? undefined : cacheSettings.ttl;
 
-                    if (cacheSettings.enableSystemPrompt) {
-                        cachingSystemPromptForOpenRouter(request.body.messages, cacheSettings.ttl);
+                    if (cacheSettings.enableSystemPrompt || (isGemini && enableGeminiSystemPromptCache)) {
+                        cachingSystemPromptForOpenRouter(request.body.messages, ttl);
                     }
 
-                    if (cachingAtDepth !== -1) {
+                    if (!isGemini && cachingAtDepth !== -1) {
                         cachingAtDepthForOpenRouterClaude(request.body.messages, cachingAtDepth, cacheSettings.ttl);
                     }
-                }
-
-                if (isCacheableGemini && enableGeminiSystemPromptCache) {
-                    cachingSystemPromptForOpenRouter(request.body.messages);
                 }
             }
 
